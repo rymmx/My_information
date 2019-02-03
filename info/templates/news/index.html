@@ -1,0 +1,82 @@
+{#1.使用extends关键字完成继承#}
+{% extends "base.html" %}
+
+{#2.将需要修改的内容在父模板中使用block包含#}
+
+{#3.重写父模板中的block实现子类的需求代码#}
+
+
+{#1.重写titleBlock#}
+{% block titleBlock %}
+    首页-新经资讯
+{% endblock %}
+
+{#2.重写scriptBlock#}
+{% block scriptBlock %}
+        <script type="text/javascript" src="../../static/news/js/index.js"></script>
+{% endblock %}
+
+
+{#3.重写contentBlock#}
+{% block contentBlock %}
+     <ul class="list_con fl">
+            <li>
+                <a href="#" class="news_pic fl"><img src="../../static/news/images/news_pic.jpg"></a>
+                <a href="#" class="news_title fl">日本史上最大IPO之一要来了：软银计划将手机业务分拆上市软银计划将手机业务分拆上市</a>
+                <a href="#" class="news_detail fl">据日经新闻网，软银计划让旗下核心业务移动手机部门SoftBank Corp.分拆上市，或募资2万亿日元(约180亿美元)。随着软银逐步向投资公司转型，此举旨在给手机业务部门更多自主权。</a>
+                <div class="author_info fl">
+                    <div class="author fl">
+                        <img src="../../static/news/images/person.png" alt="author">
+                        <a href="#">乐鸣</a>
+                    </div>
+                    <div class="time fl">2017-01-01 00:00:00</div>
+                </div>
+            </li>
+            <li>
+                <a href="#" class="news_pic fl"><img src="../../static/news/images/news_pic.jpg"></a>
+                <a href="#" class="news_title fl">日本史上最大IPO之一要来了：软银计划将手机业务分拆上市</a>
+                <a href="#" class="news_detail fl">据日经新闻网，软银计划让旗下核心业务移动手机部门SoftBank Corp.分拆上市，或募资2万亿日元(约180亿美元)。随着软银逐步向投资公司转型，此举旨在给手机业务部门更多自主权。</a>
+                <div class="author_info fl">
+                    <div class="source fl">
+                        来源：广州日报
+                    </div>
+                    <div class="time fl">2017-01-01 00:00:00</div>
+                </div>
+            </li>
+            <li>
+                <a href="#" class="news_pic fl"><img src="../../static/news/images/news_pic.jpg"></a>
+                <a href="#" class="news_title fl">日本史上最大IPO之一要来了：软银计划将手机业务分拆上市</a>
+                <a href="#" class="news_detail fl">据日经新闻网，软银计划让旗下核心业务移动手机部门SoftBank Corp.分拆上市，或募资2万亿日元(约180亿美元)。随着软银逐步向投资公司转型，此举旨在给手机业务部门更多自主权。</a>
+                <div class="author_info fl">
+                    <div class="author fl">
+                        <img src="../../static/news/images/person.png" alt="author">
+                        <a href="#">乐鸣</a>
+                    </div>
+                    <div class="time fl">2017-01-01 00:00:00</div>
+                </div>
+            </li>
+            <li>
+                <a href="#" class="news_pic fl"><img src="../../static/news/images/news_pic.jpg"></a>
+                <a href="#" class="news_title fl">日本史上最大IPO之一要来了：软银计划将手机业务分拆上市</a>
+                <a href="#" class="news_detail fl">据日经新闻网，软银计划让旗下核心业务移动手机部门SoftBank Corp.分拆上市，或募资2万亿日元(约180亿美元)。随着软银逐步向投资公司转型，此举旨在给手机业务部门更多自主权。</a>
+                <div class="author_info fl">
+                    <div class="source fl">
+                        来源：广州日报
+                    </div>
+                    <div class="time fl">2017-01-01 00:00:00</div>
+                </div>
+            </li>
+        </ul>
+{% endblock %}
+
+{% block categoryBlock %}
+    {% for category in data.categories %}
+                    {#// 默认只激活第一个数据#}
+                    <li class="{% if loop.index == 1 %}active{% endif %}" data-cid="{{ loop.index }}"><a href="javascript:;">{{ category.name }}</a></li>
+    {% endfor %}
+{% endblock %}
+
+
+
+
+

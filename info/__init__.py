@@ -14,6 +14,11 @@ from redis import StrictRedis
 from config import config_dict
 from info.utils.common import get_user_info, do_ranklist_class
 
+# 注意:次模块必须手动导入,是无提示的
+import pymysql
+# python2和python3数据库相互转化使用
+pymysql.install_as_MySQLdb()
+
 # 当app不存在时,只是进行声明,没有真正创建数据库对象db
 db = SQLAlchemy()
 
@@ -103,6 +108,7 @@ def create_app(config_name):
 
         # 2.返回404页面
         return render_template("news/404.html",data=data)
+        # return "123"
 
 
     # 5.创建Flask_session工具类对象:将flask.session的存储从 服务器内存 调整到redis 数据库
@@ -111,16 +117,17 @@ def create_app(config_name):
     # 注意:真正使用蓝图对象时才导入,能够解决循环导入问题
     # 在app 上注册蓝图
     # 注册首页蓝图对象
-    # from info.modules.index import index_bp
-    # app.register_blueprint(index_bp)
+    from info.modules.index import index_bp
+    app.register_blueprint(index_bp)
+
+    # 注册新闻的蓝图对象
+    # from info.modules.news import news_bp
+    # app.register_blueprint(news_bp)
 
     # 添加注册模块蓝图
     # from info.modules.passport import passport_bp
     # app.register_blueprint(passport_bp)
 
-    # 注册新闻的蓝图对象
-    # from info.modules.news import news_bp
-    # app.register_blueprint(news_bp)
 
     return app
 

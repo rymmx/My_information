@@ -1,7 +1,10 @@
 from flask import Blueprint
 
-# 登陆注册模块: 访问前缀 /passport
-index_bp = Blueprint("index",__name__,url_prefix="/index")
+# 1.创建蓝图对象
+index_bp = Blueprint("index", __name__)
 
-# 导入view文件中的视图函数
+# 3.将views文件中的视图函数和模块关联
 from .views import *
+# from info.modules.index.views import *
+
+

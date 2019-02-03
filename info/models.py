@@ -185,6 +185,7 @@ class News(BaseModel, db.Model):
             "index_image_url": self.index_image_url,
             "author": self.user.to_dict() if self.user else None
         }
+        return resp_dict  # 一定要记得带上返回值,要知道,整整找了一下午才找到
 
 
 class Comment(BaseModel, db.Model):

@@ -58,6 +58,7 @@ $(function(){
 	// 打开注册框
 	$('.register_btn').click(function(){
 		$('.register_form_con').show();
+		// 请求一张图形验证码图片显示
 		generateImageCode()
 	})
 
@@ -102,7 +103,9 @@ $(function(){
 
     // TODO 登录表单提交
     $(".login_form_con").submit(function (e) {
+        // 阻止表单默认提交行为
         e.preventDefault()
+
         var mobile = $(".login_form #mobile").val()
         var password = $(".login_form #password").val()
 
@@ -117,12 +120,42 @@ $(function(){
         }
 
         // 发起登录请求
+        // 组织请求数据
+        var params = {
+            "mobile": mobile,
+            "password": password
+        }
+        // js对象转换成json字符串
+        jons_str = JSON.stringify(params)
+
+        // 发送ajax请求
+        $.ajax({
+            url: "/passport/login",
+            type: "POST",
+            data: jons_str,
+            contentType: "application/json",
+            dataType: "json",
+            headers: {
+                // 从html文档中使用正则提取
+                "X-CSRFToken": getCookie("csrf_token")
+            },
+            success: function (resp) {
+                if(resp.errno == "0"){
+                    // 登录成功 刷新页面
+                    window.location.reload()
+                }else{
+                    $("#login-password-err").html(resp.errmsg)
+                    $("#login-password-err").show()
+                }
+            }
+        })
+
     })
 
 
     // TODO 注册按钮点击
     $(".register_form_con").submit(function (e) {
-        // 阻止默认提交操作
+        // 阻止表单默认提交操作
         e.preventDefault()
 
 		// 取到用户输入的内容
@@ -149,8 +182,44 @@ $(function(){
             $("#register-password-err").show();
             return;
         }
+        // 组织请求数据
+        var params = {
 
-        // 发起注册请求
+		    "mobile": mobile,
+            "sms_code": smscode,
+            "password": password
+
+        }
+        // 将js对象转换成json字符串
+        json_str = JSON.stringify(params)
+
+        // 发起注册请求， 使用ajax提交数据
+        $.ajax({
+            url: "/passport/register",
+            type: "POST",
+            // 上传的数据
+            data: json_str,
+            // 告知服务器上传的数据是json格式
+            contentType: "application/json",
+            // 接受的数据是json格式
+            dataType: "json",
+            headers: {
+                // 从html文档中使用正则提取
+                "X-CSRFToken": getCookie("csrf_token")
+             },
+            success: function (resp) {
+                if(resp.errno == "0"){
+                    // 注册成功 刷新页面
+                    window.location.reload()
+
+                }else{
+                    // 展示错误信息
+                    $("#register-password-err").html(resp.errmsg)
+                    $("#register-password-err").show()
+                }
+            }
+
+        })
 
     })
 })
@@ -160,6 +229,14 @@ var imageCodeId = ""
 // TODO 生成一个图片验证码的编号，并设置页面中图片验证码img标签的src属性
 function generateImageCode() {
 
+    // 1.生成一个唯一编码UUID
+    imageCodeId = generateUUID()
+
+    // 2.构建请求的url地址
+    var url = "/passport/image_code?code_id=" + imageCodeId
+
+    // 3.将url替换到img标签的src属性，src属性默认就会往后端发送一个get请求。
+    $(".get_pic_code").attr("src", url)
 }
 
 // 发送短信验证码
@@ -182,6 +259,72 @@ function sendSMSCode() {
     }
 
     // TODO 发送短信验证码
+
+    // 组织参数 js对象
+    var params = {
+        "mobile": mobile,
+        "image_code": imageCode,
+        "image_code_id": imageCodeId
+    }
+    // 前端的代码：js对象转换成json字符串
+    json_str = JSON.stringify(params)
+    
+    //发送ajax请求
+    $.ajax({
+        url: "/passport/sms_code",
+        type: "POST",
+        // 发送json格式数据
+        data: json_str,
+        // 告诉后端我们发送的数据是json格式
+        contentType: "application/json",
+        // 设置接受的数据是json格式
+        dataType: "json",
+        headers: {
+            // 从html文档中使用正则提取
+            "X-CSRFToken": getCookie("csrf_token")
+        },
+        success: function (resp) {
+            if(resp.errno == "0"){
+                // 发送短信验证码成功
+                // 短信倒计时
+                 // 倒计时60秒，60秒后允许用户再次点击发送短信验证码的按钮
+                var num = 60;
+                // 设置一个计时器
+                var t = setInterval(function () {
+                    if (num == 1) {
+                        // 如果计时器到最后, 清除计时器对象
+                        clearInterval(t);
+                        // 将点击获取验证码的按钮展示的文本回复成原始文本
+                        $(".get_code").html("获取验证码");
+                        // 将点击按钮的onclick事件函数恢复回去
+                        $(".get_code").attr("onclick", "sendSMSCode();");
+                    } else {
+                        num -= 1;
+                        // 展示倒计时信息
+                        $(".get_code").html(num + "秒");
+                    }
+                }, 1000)
+
+            }else{
+                // 展示错误
+                 // 表示后端出现了错误，可以将错误信息展示到前端页面中
+                $("#register-sms-code-err").html(resp.errmsg);
+                $("#register-sms-code-err").show();
+                // 将点击按钮的onclick事件函数恢复回去
+                $(".get_code").attr("onclick", "sendSMSCode();");
+
+                if(resp.errno == "4004"){
+                    // 重新生成一张验证码图片
+                    generateImageCode()
+                }
+
+
+            }
+        }
+        
+    })
+
+
 }
 
 // 调用该函数模拟点击左侧按钮
@@ -201,7 +344,10 @@ function fnSetIframeHeight(num){
 	$frame.css({'height':num});
 }
 
+// 提取html中的cookie值
 function getCookie(name) {
+
+    // csrf_token="xskad;sakd;las"
     var r = document.cookie.match("\\b" + name + "=([^;]*)\\b");
     return r ? r[1] : undefined;
 }
@@ -217,4 +363,27 @@ function generateUUID() {
         return (c=='x' ? r : (r&0x3|0x8)).toString(16);
     });
     return uuid;
+}
+
+// 退出登录的前端接口
+function login_out() {
+
+    // 发送ajax请求
+    $.ajax({
+        url: "/passport/login_out",
+        type: "POST",
+        dataType: "json",
+        headers: {
+            // 从html文档中使用正则提取
+            "X-CSRFToken": getCookie("csrf_token")
+        },
+        success: function (resp) {
+            if(resp.errno == "0"){
+
+                // 退出登录成功刷新页面
+                window.location.reload()
+            }
+        }
+    })
+
 }
